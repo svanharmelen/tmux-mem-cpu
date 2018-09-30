@@ -33,7 +33,8 @@ std::string tick( int percentage )
   } else {
     oss << "#[fg=green]";
   }
-  oss << ticks.substr(tick_pos * 3, 3);
+
+  oss << ticks.substr(tick_pos * 3, 3) << "#[fg=default]";
 
   return oss.str();
 }
