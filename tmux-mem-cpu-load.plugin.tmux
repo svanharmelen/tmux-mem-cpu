@@ -25,7 +25,7 @@ if output=$(cmake . 2>&1); then tmux run-shell "echo \"'cmake $CURRENT_DIR' fail
 $output
 \""; else exit 1; fi
 
-if output=$(make 2>&1); then tmux run-shell "echo \"tmux-mem-cpu-load failed to build.
+if output=$(make 2>&1); then tmux run-shell "echo \"tmux-mem-cpu failed to build.
 $output
 \""; else exit 1; fi
 

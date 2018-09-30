@@ -16,25 +16,11 @@
  * limitations under the License.
  */
 
-#include <sstream>
-#include <fstream>
+#ifndef TICK_H_
+#define TICK_H_
 
-#include "windows.h"
+#include <string>
 
-#include "memory.h"
-#include "conversions.h"
+std::string tick( int percentage );
 
-void mem_status( MemoryStatus & status )
-{
-  MEMORYSTATUSEX memory_status;
-  memory_status.dwLength = sizeof(memory_status);
-
-  GlobalMemoryStatusEx(&memory_status);
-
-  // we want megabytes on output, but since the values already come as
-  // kilobytes we need to divide them by 1024 only once, thus we use
-  // KILOBYTES
-  status.used_mem = convert_unit(static_cast< float >( memory_status.ullAvailPhys ), MEGABYTES, BYTES);
-  status.total_mem = convert_unit(static_cast< float >( memory_status.ullTotalPhys ), MEGABYTES, BYTES);
-}
-
+#endif

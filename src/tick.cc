@@ -1,6 +1,6 @@
-/* vim: tabstop=2 shiftwidth=2 expandtab textwidth=80 linebreak wrap
- *
+/*
  * Copyright 2012 Matthew McCormick
+ * Copyright 2013 Justin Crawford <Justasic@gmail.com>
  * Copyright 2015 Pawel 'l0ner' Soltys
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,24 @@
  * limitations under the License.
  */
 
-#ifndef GRAPH_H_
-#define GRAPH_H_
-
 #include <string>
+#include <sstream>
 
-std::string get_graph_by_percentage( unsigned, unsigned len = 10 );
-std::string get_graph_by_value( unsigned, unsigned, unsigned len = 10 );
+std::string tick( int percentage )
+{
+  std::ostringstream oss;
+  std::string ticks = "▁▂▃▄▅▆▇█";
+  int ticks_count = ticks.size() / 3;
+  int tick_pos = (ticks_count * percentage) / 101;
 
-#endif
+  if (percentage > 90) {
+    oss << "#[fg=red]";
+  } else if (percentage > 80) {
+    oss << "#[fg=yellow]";
+  } else {
+    oss << "#[fg=green]";
+  }
+  oss << ticks.substr(tick_pos * 3, 3);
+
+  return oss.str();
+}

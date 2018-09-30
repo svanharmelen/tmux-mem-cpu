@@ -1,15 +1,9 @@
-=============================================
-            tmux-mem-cpu-load
-=============================================
----------------------------------------------
-CPU, RAM, and load monitor for use with tmux_
----------------------------------------------
-
-.. image:: https://travis-ci.org/thewtex/tmux-mem-cpu-load.svg
-  :target: https://travis-ci.org/thewtex/tmux-mem-cpu-load
-
-.. image:: https://circleci.com/gh/thewtex/tmux-mem-cpu-load.svg?style=svg
-  :target: https://circleci.com/gh/thewtex/tmux-mem-cpu-load
+======================================
+            tmux-mem-cpu
+======================================
+--------------------------------------
+CPU and RAM monitor for use with tmux_
+--------------------------------------
 
 Description
 ===========
@@ -22,27 +16,19 @@ The memory monitor displays the used and available memory.
 The CPU usage monitor outputs a percent CPU usage over all processors. It also
 displays a textual bar graph of the current percent usage.
 
-The system load average is also displayed.
-
 Example output::
 
-  2885/7987MB [|||||     ]  51.2% 2.11 2.35 2.44
+  1.1/3.8GB ▄  76.5% ▇
 
-   ^    ^          ^         ^     ^    ^    ^
-   |    |          |         |     |    |    |
-   1    2          3         4     5    6    7
+   ^    ^     ^    ^   ^
+   |    |     |    |   |
+   1    2     3    4   5
 
 1. Currently used memory.
 2. Available memory.
-3. CPU usage bar graph.
+3. Memory usage bar graph.
 4. CPU usage percentage.
-5. Load average for the past minute.
-6. Load average for the past 5 minutes.
-7. Load average for the past 15 minutes.
-
-For `terminals with 256 color support`_, graded colors can be displayed by
-passing the **--colors** flag.
-
+5. CPU usage bar graph.
 
 Installation
 ============
@@ -50,7 +36,7 @@ Installation
 Dependencies
 ------------
 
-Currently, Linux, Mac OSX, FreeBSD, OpenBSD, and NetBSD are supported.
+Only Mac OSX is supported.
 
 Building
 ~~~~~~~~
@@ -89,22 +75,7 @@ configuration in, below.
 
 ::
 
-  set -g @plugin 'thewtex/tmux-mem-cpu-load'
-
-Install with Package Managers
------------------------------
-
-* Gentoo: ``emerge tmux-mem-cpu-load``
-* Homebrew: ``brew install tmux-mem-cpu-load``
-
-Build and Install Using Antigen_
---------------------------------
-
-Include the bundle in your ``.zshrc``
-
-::
-
-  antigen bundle thewtex/tmux-mem-cpu-load
+  set -g @plugin 'svanharmelen/tmux-mem-cpu'
 
 Configuring tmux_
 =================
@@ -113,53 +84,32 @@ Edit ``$HOME/.tmux.conf`` to display the program's output in *status-left* or
 *status-right*.  For example::
 
   set -g status-interval 2
-  set -g status-left "#S #[fg=green,bg=black]#(tmux-mem-cpu-load --colors --interval 2)#[default]"
+  set -g status-left "#S #[fg=green,bg=black]#(tmux-mem-cpu --interval 2)#[default]"
   set -g status-left-length 60
 
 If you installed using tpm, you must specify the full path to the
-``tmux-mem-cpu-load`` script, like below::
+``tmux-mem-cpu`` script, like below::
 
-  set -g status-right "#[fg=green]#($TMUX_PLUGIN_MANAGER_PATH/tmux-mem-cpu-load/tmux-mem-cpu-load --colors --powerline-right --interval 2)#[default]"
+  set -g status-right "#[fg=green]#($TMUX_PLUGIN_MANAGER_PATH/tmux-mem-cpu/tmux-mem-cpu --interval 2)#[default]"
 
-Note that the *interval* argument to `tmux-mem-cpu-load` should be the same number
+Note that the *interval* argument to `tmux-mem-cpu` should be the same number
 of seconds that *status-interval* is set at.
-
-Another optional argument is the number of bars in the bar graph, which
-defaults to 10.  This can, for instance, be set to the number of cores in a
-multi-core system.
-
-The *colors* option will add graded colors for each of the measures.
 
 The full usage::
 
-  Usage: tmux-mem-cpu-load [OPTIONS]
+  Usage: tmux-mem-cpu [OPTIONS]
 
   Available options:
   -h, --help
            Prints this help message
-  -c, --colors
-          Use tmux colors in output
-  -p, --powerline-left
-	  Use powerline left symbols throughout the output, enables --colors
-  -q, --powerline-right
-	  Use powerline right symbols throughout the output, enables --colors
   -i <value>, --interval <value>
           Set tmux status refresh interval in seconds. Default: 1 second
-  -g <value>, --graph-lines <value>
-          Set how many lines should be drawn in a graph. Default: 10
-  -m <value>, --mem-mode <value>
-        Set memory display mode. 0: Default, 1: Free memory, 2: Usage percent.
-  -t <value>, --cpu-mode <value>
-        Set cpu % display mode. 0: Default max 100%, 1: Max 100% * number of threads.
-  -a <value>, --averages-count <value>
-        Set how many load-averages should be drawn. Default: 3
-
-
 
 Authors
 =======
 
 Matt McCormick (thewtex) <matt@mmmccormick.com>
+Sander van Harmelen (svanharmelen) sander@xanzy.io
 
 Contributions from:
 
@@ -178,9 +128,7 @@ Contributions from:
 
 .. _tmux: http://tmux.sourceforge.net/
 .. _CMake: http://www.cmake.org
-.. _`project homepage`: http://github.com/thewtex/tmux-mem-cpu-load
+.. _`project homepage`: http://github.com/svanharmelen/tmux-mem-cpu
 .. _`tpm`: http://github.com/tmux-plugins/tpm
-.. _`Antigen`: https://github.com/zsh-users/antigen
-.. _`terminals with 256 color support`: http://misc.flogisoft.com/bash/tip_colors_and_formatting#terminals_compatibility
 .. _`Pawel 'l0ner' Soltys` : http://l0ner.github.io/
 .. _`@nhdaly` : http://github.com/nhdaly
