@@ -64,7 +64,6 @@ std::string mem_string( const MemoryStatus & mem_status )
 
   oss << mem_status.used_mem << '/' << mem_status.total_mem << "GB ";
   oss << tick(mem_status.used_mem * 100 / mem_status.total_mem);
-  oss.width( 3 );
 
   return oss.str();
 }

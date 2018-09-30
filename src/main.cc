@@ -36,14 +36,20 @@ void print_help()
     << "Available options:\n"
     << "-h, --help\n"
     << "\t Prints this help message\n"
+    << "-c, --cpu\n"
+    << "\tOnly display CPU stats\n"
     << "-i <value>, --interval <value>\n"
     << "\tSet tmux status refresh interval in seconds. Default: 1 second\n"
+    << "-m, --memory\n"
+    << "\tOnly display memory stats\n"
     << endl;
 }
 
 int main( int argc, char** argv )
 {
   unsigned cpu_usage_delay = 990000;
+  bool show_cpu = false;
+  bool show_memory = false;
 
   static struct option long_options[] =
   {
@@ -52,19 +58,24 @@ int main( int argc, char** argv )
     // if *flag is null, val is option identifier to use in switch()
     // otherwise it's a value to set the variable *flag points to
     { "help", no_argument, NULL, 'h' },
+    { "cpu", no_argument, NULL, 'c' },
     { "interval", required_argument, NULL, 'i' },
+    { "memory", no_argument, NULL, 'm' },
     { 0, 0, 0, 0 } // used to handle unknown long options
   };
 
   int c;
   // while c != -1
-  while( (c = getopt_long( argc, argv, "hi:cpqg:m:a:t:", long_options, NULL) ) != -1 )
+  while( (c = getopt_long( argc, argv, "hci:m", long_options, NULL) ) != -1 )
   {
     switch( c )
     {
       case 'h': // --help, -h
         print_help();
         return EXIT_FAILURE;
+        break;
+      case 'c': // --cpu
+        show_cpu = true;
         break;
       case 'i': // --interval, -i
         if( atoi( optarg ) < 1 )
@@ -73,6 +84,9 @@ int main( int argc, char** argv )
             return EXIT_FAILURE;
           }
         cpu_usage_delay = atoi( optarg ) * 1000000 - 10000;
+        break;
+      case 'm': // --memory
+        show_memory = true;
         break;
       case '?':
         // getopt_long prints error message automatically
@@ -84,9 +98,23 @@ int main( int argc, char** argv )
     }
   }
 
-  MemoryStatus memory_status;
-  mem_status( memory_status );
-  std::cout << mem_string( memory_status ) << cpu_string( cpu_usage_delay );
+  if (!show_cpu && !show_memory)
+  {
+    show_cpu = true;
+    show_memory = true;
+  }
+
+  if (show_memory)
+  {
+    MemoryStatus memory_status;
+    mem_status( memory_status );
+    std::cout << mem_string( memory_status );
+  }
+
+  if (show_cpu)
+  {
+    std::cout << cpu_string( cpu_usage_delay );
+  }
 
   std::cout << std::endl;
 
