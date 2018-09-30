@@ -15,7 +15,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 
-if [ ! -s /usr/local/bin/tmux-mem-cpu-load ];
+if [ ! -s /usr/local/bin/tmux-mem-cpu ];
 then
   pushd ${0:a:h} #Pushd to the directory where this plugin is located.
   cmake .

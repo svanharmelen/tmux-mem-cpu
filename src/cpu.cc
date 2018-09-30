@@ -17,9 +17,12 @@
  */
 
 #include <mach/mach.h>
+#include <string>
+#include <sstream>
 #include <unistd.h> // usleep()
 
 #include "cpu.h"
+#include "tick.h"
 
 uint8_t get_cpu_count()
 {
@@ -39,7 +42,7 @@ host_cpu_load_info_data_t _get_cpu_percentage()
 
   count = HOST_CPU_LOAD_INFO_COUNT;
   mach_port = mach_host_self();
-  error = host_statistics(mach_port, HOST_CPU_LOAD_INFO, 
+  error = host_statistics(mach_port, HOST_CPU_LOAD_INFO,
       ( host_info_t )&r_load, &count );
 
   if ( error != KERN_SUCCESS )
@@ -73,8 +76,33 @@ float cpu_percentage( unsigned int cpu_usage_delay )
   unsigned long long diff_nice = next_nice - current_nice;
   unsigned long long diff_idle = next_idle - current_idle;
 
-  return static_cast<float>( diff_user + diff_system + diff_nice ) / 
-    static_cast<float>( diff_user + diff_system + diff_nice + diff_idle ) * 
+  return static_cast<float>( diff_user + diff_system + diff_nice ) /
+    static_cast<float>( diff_user + diff_system + diff_nice + diff_idle ) *
     100.0;
 }
 
+std::string cpu_string( unsigned int cpu_usage_delay )
+{
+
+  float percentage;
+
+  //output stuff
+  std::ostringstream oss;
+  oss.precision( 1 );
+  oss.setf( std::ios::fixed | std::ios::right );
+
+  // get %
+  percentage = cpu_percentage( cpu_usage_delay );
+
+  // if percentage >= 100, remove decimal point to keep number short
+  if ( percentage >= 100.0f )
+  {
+    oss.precision( 0 );
+  }
+
+  oss.width( 5 );
+  oss << percentage << "% ";
+  oss << tick(percentage);
+
+  return oss.str();
+}

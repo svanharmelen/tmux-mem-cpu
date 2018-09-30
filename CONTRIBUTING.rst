@@ -2,12 +2,12 @@
 Contributing
 ============
 
-Want to improve the quality of tmux-mem-cpu-load code? Great! Here's a quick
+Want to improve the quality of tmux-mem-cpu code? Great! Here's a quick
 guide:
 
 1. Fork, then clone the repo:
 
-    git clone git@github.com:your-username/tmux-mem-cpu-load
+    git clone git@github.com:your-username/tmux-mem-cpu
 
 2. Make your change. Add tests for your change.
 3. See if it compiles and runs like it should.
@@ -52,5 +52,5 @@ You'll need to follow the subsequent rules in order to get your code merged:
   You can use this bash script to strip unnecessary whitespaces:
   http://git.io/z_GA3A
 
-.. _`submit a pull request`: https://github.com/thewtex/tmux-mem-cpu-load/compare/
+.. _`submit a pull request`: https://github.com/svanharmelen/tmux-mem-cpu/compare/
 .. _Allman: http://en.wikipedia.org/wiki/Indent_style#Allman_style
