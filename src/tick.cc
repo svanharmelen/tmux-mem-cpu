@@ -28,7 +28,7 @@ std::string tick( int percentage )
 
   if (percentage > 90) {
     oss << "#[fg=red]";
-  } else if (percentage > 80) {
+  } else if (percentage > 75) {
     oss << "#[fg=yellow]";
   } else {
     oss << "#[fg=green]";

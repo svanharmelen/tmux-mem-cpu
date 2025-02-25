@@ -20,9 +20,9 @@ Example output::
 
   1.1/3.8GB ▄  76.5% ▇
 
-   ^    ^     ^    ^   ^
-   |    |     |    |   |
-   1    2     3    4   5
+   ^    ^   ^    ^   ^
+   |    |   |    |   |
+   1    2   3    4   5
 
 1. Currently used memory.
 2. Available memory.
