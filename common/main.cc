@@ -35,9 +35,19 @@
 
 #include "powerline.h"
 
+// Identifiers for options that have no short form. Start past the range of
+// values getopt_long can return for a short option.
+enum
+{
+  OPT_TICK_GRAPH = 256,
+  OPT_CPU_ONLY,
+  OPT_MEM_ONLY
+};
+
 std::string cpu_string( CPU_MODE cpu_mode, unsigned int cpu_usage_delay, unsigned int graph_lines,
     bool use_colors = false,
-    bool use_powerline_left = false, bool use_powerline_right = false, bool use_vert_graph = false)
+    bool use_powerline_left = false, bool use_powerline_right = false, bool use_vert_graph = false,
+    bool use_tick_graph = false)
 {
 
   float percentage;
@@ -80,17 +90,21 @@ std::string cpu_string( CPU_MODE cpu_mode, unsigned int cpu_usage_delay, unsigne
     }
   }
 
-  if( use_vert_graph )
+  // The tick graph is drawn after the percentage instead of before it.
+  if( !use_tick_graph )
   {
-    oss << "▕";
-    oss << get_graph_vert( unsigned( percentage ) );
-    oss << "▏";
-  }
-  else if( graph_lines > 0)
-  {
-    oss << " [";
-    oss << get_graph_by_percentage( unsigned( percentage ), graph_lines );
-    oss << "]";
+    if( use_vert_graph )
+    {
+      oss << "▕";
+      oss << get_graph_vert( unsigned( percentage ) );
+      oss << "▏";
+    }
+    else if( graph_lines > 0)
+    {
+      oss << " [";
+      oss << get_graph_by_percentage( unsigned( percentage ), graph_lines );
+      oss << "]";
+    }
   }
   oss.width( 6 );
   oss.setf( std::ios::fixed, std::ios::floatfield );
@@ -98,6 +112,12 @@ std::string cpu_string( CPU_MODE cpu_mode, unsigned int cpu_usage_delay, unsigne
   oss.fill( ' ' );
   oss << std::right << percentage * multiplier;
   oss << "%";
+
+  if( use_tick_graph )
+  {
+    oss << ' ' << get_graph_tick( percent );
+  }
+
   if( use_colors )
   {
     if( use_powerline_left )
@@ -108,6 +128,11 @@ std::string cpu_string( CPU_MODE cpu_mode, unsigned int cpu_usage_delay, unsigne
     {
       oss << "#[fg=default,bg=default]";
     }
+  }
+  else if( use_tick_graph )
+  {
+    // The tick sets a foreground colour of its own, so hand it back.
+    oss << "#[fg=default]";
   }
 
   return oss.str();
@@ -131,6 +156,9 @@ void print_help()
     << "\tUse powerline right symbols throughout the output, enables --colors\n"
     << "-v, --vertical-graph\n"
     << "\tUse vertical bar chart for CPU graph\n"
+    << "--tick-graph\n"
+    << "\tUse a single coloured block character as the graph, drawn after the\n"
+    << "\tvalue, for both memory and CPU\n"
     << "-l <value>, --segments-left <value>\n"
     << "\tEnable blending bg/fg color (depending on -p or -q use) with segment to left\n"
     << "\tProvide color to be used depending on -p or -q option for seamless segment blending\n"
@@ -144,11 +172,16 @@ void print_help()
     << "-g <value>, --graph-lines <value>\n"
     << "\tSet how many lines should be drawn in a graph. Default: 10\n"
     << "-m <value>, --mem-mode <value>\n"
-    << "\tSet memory display mode. 0: Default, 1: Free memory, 2: Usage percent.\n"
+    << "\tSet memory display mode. 0: Default, 1: Free memory, 2: Usage percent,\n"
+    << "\t3: Used/total gigabytes.\n"
     << "-t <value>, --cpu-mode <value>\n"
     << "\tSet cpu % display mode. 0: Default max 100%, 1: Max 100% * number of threads. \n"
     << "-a <value>, --averages-count <value>\n"
     << "\tSet how many load-averages should be drawn. Default: 3\n"
+    << "--cpu-only\n"
+    << "\tOnly output the CPU segment\n"
+    << "--mem-only\n"
+    << "\tOnly output the memory segment\n"
     << endl;
 }
 
@@ -163,6 +196,10 @@ int main( int argc, char** argv )
   bool use_powerline_left = false;
   bool use_powerline_right = false;
   bool use_vert_graph = false;
+  bool use_tick_graph = false;
+  bool show_mem = true;
+  bool show_cpu = true;
+  bool show_load = true;
   bool segments_to_left = false;
   bool segments_to_right= false;
   MEMORY_MODE mem_mode = MEMORY_MODE_DEFAULT;
@@ -186,6 +223,9 @@ int main( int argc, char** argv )
     { "averages-count", required_argument, NULL, 'a' },
     { "segments-left", required_argument, NULL, 'l' },
     { "segments-right", required_argument, NULL, 'r' },
+    { "tick-graph", no_argument, NULL, OPT_TICK_GRAPH },
+    { "cpu-only", no_argument, NULL, OPT_CPU_ONLY },
+    { "mem-only", no_argument, NULL, OPT_MEM_ONLY },
     { 0, 0, 0, 0 } // used to handle unknown long options
   };
 
@@ -248,9 +288,9 @@ int main( int argc, char** argv )
         graph_lines = atoi( optarg );
         break;
       case 'm': // --mem-mode, -m
-        if( atoi( optarg ) < 0 )
+        if( atoi( optarg ) < 0 || atoi( optarg ) > MEMORY_MODE_GIGABYTES )
           {
-            std::cerr << "Memory mode argument must be zero or greater.\n";
+            std::cerr << "Valid mem-mode arguments are: 0, 1, 2, 3\n";
             return EXIT_FAILURE;
           }
         mem_mode = static_cast< MEMORY_MODE >( atoi( optarg ) );
@@ -271,6 +311,27 @@ int main( int argc, char** argv )
           }
         averages_count = atoi( optarg );
         break;
+      case OPT_TICK_GRAPH: // --tick-graph
+        use_tick_graph = true;
+        break;
+      case OPT_CPU_ONLY: // --cpu-only
+        if( !show_cpu )
+          {
+            std::cerr << "--cpu-only and --mem-only are mutually exclusive.\n";
+            return EXIT_FAILURE;
+          }
+        show_mem = false;
+        show_load = false;
+        break;
+      case OPT_MEM_ONLY: // --mem-only
+        if( !show_mem )
+          {
+            std::cerr << "--cpu-only and --mem-only are mutually exclusive.\n";
+            return EXIT_FAILURE;
+          }
+        show_cpu = false;
+        show_load = false;
+        break;
       case '?':
         // getopt_long prints error message automatically
         return EXIT_FAILURE;
@@ -289,11 +350,22 @@ int main( int argc, char** argv )
     return EXIT_FAILURE;
   }
 
-  MemoryStatus memory_status;
-  mem_status( memory_status );
-  std::cout << mem_string( memory_status, mem_mode, use_colors, use_powerline_left, use_powerline_right, segments_to_left, left_color )
-    << cpu_string( cpu_mode, cpu_usage_delay, graph_lines, use_colors, use_powerline_left, use_powerline_right, use_vert_graph )
-    << load_string( use_colors, use_powerline_left, use_powerline_right, averages_count, segments_to_right, right_color );
+  if( show_mem )
+  {
+    MemoryStatus memory_status;
+    mem_status( memory_status );
+    std::cout << mem_string( memory_status, mem_mode, use_colors, use_powerline_left, use_powerline_right, segments_to_left, left_color, use_tick_graph );
+  }
+
+  if( show_cpu )
+  {
+    std::cout << cpu_string( cpu_mode, cpu_usage_delay, graph_lines, use_colors, use_powerline_left, use_powerline_right, use_vert_graph, use_tick_graph );
+  }
+
+  if( show_load )
+  {
+    std::cout << load_string( use_colors, use_powerline_left, use_powerline_right, averages_count, segments_to_right, right_color );
+  }
 
   std::cout << std::endl;
 

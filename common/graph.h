@@ -24,5 +24,6 @@
 std::string get_graph_by_percentage( unsigned, unsigned len = 10 );
 std::string get_graph_by_value( unsigned, unsigned, unsigned len = 10 );
 std::string get_graph_vert( unsigned );
+std::string get_graph_tick( unsigned );
 
 #endif

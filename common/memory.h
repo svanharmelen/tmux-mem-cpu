@@ -39,12 +39,14 @@ void mem_status( MemoryStatus & status );
  * MEMORY_MODE_DEFAULT:          11156/16003MB
  * MEMORY_MODE_FREE_MEMORY:
  * MEMORY_MODE_USAGE_PERCENTAGE: 
+ * MEMORY_MODE_GIGABYTES:        10.89/15.63GB
  */
 enum MEMORY_MODE
 {
   MEMORY_MODE_DEFAULT,
   MEMORY_MODE_FREE_MEMORY,
-  MEMORY_MODE_USAGE_PERCENTAGE
+  MEMORY_MODE_USAGE_PERCENTAGE,
+  MEMORY_MODE_GIGABYTES
 };
 
 std::string mem_string( const MemoryStatus & mem_status,
@@ -53,6 +55,7 @@ std::string mem_string( const MemoryStatus & mem_status,
   bool use_powerline_left = false,
   bool use_powerline_right = false,
   bool segments_to_left = false,
-  short left_color = 0 );
+  short left_color = 0,
+  bool use_tick_graph = false );
 
 #endif

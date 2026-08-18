@@ -23,6 +23,7 @@
 #include "luts.h"
 #include "conversions.h"
 #include "powerline.h"
+#include "graph.h"
 
 std::string mem_string( const MemoryStatus & mem_status,
   MEMORY_MODE mode,
@@ -30,7 +31,8 @@ std::string mem_string( const MemoryStatus & mem_status,
   bool use_powerline_left,
   bool use_powerline_right,
   bool segments_to_left,
-  short left_color )
+  short left_color,
+  bool use_tick_graph )
 {
   std::ostringstream oss;
   // Change the percision for floats, for a pretty output
@@ -96,6 +98,14 @@ std::string mem_string( const MemoryStatus & mem_status,
     oss << percentage_mem << '%';
     break;
     }
+  case MEMORY_MODE_GIGABYTES:
+    {
+    // Used/total in GB with two decimals, regardless of how small the values
+    // are. Backends report megabytes, so this is always a plain conversion.
+    oss << convert_unit( mem_status.used_mem, GIGABYTES, MEGABYTES ) << '/'
+        << convert_unit( mem_status.total_mem, GIGABYTES, MEGABYTES ) << "GB";
+    break;
+    }
   default: // Default mode, just show the used/total memory in MB
     if(mem_status.used_mem>10000 && mem_status.total_mem>10000)
       oss<<static_cast<unsigned int>(mem_status.used_mem/1024)<<"/"<<static_cast<unsigned int>(mem_status.total_mem/1024)<<"GB";
@@ -103,6 +113,11 @@ std::string mem_string( const MemoryStatus & mem_status,
       oss<<static_cast<unsigned int>(mem_status.used_mem)<<"MB/"<<static_cast<unsigned int>(mem_status.total_mem/1024)<<"GB";
     else
       oss<<static_cast<unsigned int>(mem_status.used_mem)<<"/"<<static_cast<unsigned int>(mem_status.total_mem)<<"MB";
+  }
+
+  if( use_tick_graph )
+  {
+    oss << ' ' << get_graph_tick( color );
   }
 
   if( use_colors )
@@ -115,6 +130,11 @@ std::string mem_string( const MemoryStatus & mem_status,
     {
       oss << "#[fg=default,bg=default]";
     }
+  }
+  else if( use_tick_graph )
+  {
+    // The tick sets a foreground colour of its own, so hand it back.
+    oss << "#[fg=default]";
   }
 
   return oss.str();

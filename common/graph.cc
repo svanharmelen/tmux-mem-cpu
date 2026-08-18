@@ -19,6 +19,7 @@
 #include <string>
 #include <cstring>
 #include <map>
+#include <sstream>
 
 #include "graph.h"
 
@@ -77,4 +78,38 @@ std::string get_graph_vert( unsigned value )
   }
 
   return " "; // default return in case value doesn't match map options
+}
+
+std::string get_graph_tick( unsigned value )
+{
+  std::ostringstream oss;
+  const std::string ticks = "▁▂▃▄▅▆▇█";
+  // Every tick is a three byte UTF-8 sequence.
+  const unsigned ticks_count = ticks.size() / 3;
+
+  // A reading above 100 would index past the last tick.
+  if( value > 100 )
+  {
+    value = 100;
+  }
+
+  // 101 rather than 100 so that a full 100% still maps onto the last tick.
+  const unsigned tick_pos = ( ticks_count * value ) / 101;
+
+  if( value > 90 )
+  {
+    oss << "#[fg=red]";
+  }
+  else if( value > 75 )
+  {
+    oss << "#[fg=yellow]";
+  }
+  else
+  {
+    oss << "#[fg=green]";
+  }
+
+  oss << ticks.substr( tick_pos * 3, 3 );
+
+  return oss.str();
 }

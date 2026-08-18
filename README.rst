@@ -146,6 +146,9 @@ The full usage::
 	  Use powerline right symbols throughout the output, enables --colors
   -v, --vertical-graph
 	  Use vertical bar chart for CPU graph
+  --tick-graph
+	  Use a single coloured block character as the graph, drawn after the
+	  value, for both memory and CPU
   -l <value>, --segments-left <value>
 	  Enable blending bg/fg color (depending on -p or -q use) with segment to left
 	  Provide color to be used depending on -p or -q option for seamless segment blending
@@ -159,11 +162,37 @@ The full usage::
   -g <value>, --graph-lines <value>
           Set how many lines should be drawn in a graph. Default: 10
   -m <value>, --mem-mode <value>
-        Set memory display mode. 0: Default, 1: Free memory, 2: Usage percent.
+        Set memory display mode. 0: Default, 1: Free memory, 2: Usage percent,
+        3: Used/total gigabytes.
   -t <value>, --cpu-mode <value>
         Set cpu % display mode. 0: Default max 100%, 1: Max 100% * number of threads.
   -a <value>, --averages-count <value>
         Set how many load-averages should be drawn. Default: 3
+  --cpu-only
+        Only output the CPU segment
+  --mem-only
+        Only output the memory segment
+
+Split Segments
+==============
+
+By default all three measurements are printed as one string. ``--cpu-only`` and
+``--mem-only`` each print a single measurement instead, so that tmux can style
+them independently. Combined with ``--tick-graph`` this gives two self-contained
+segments::
+
+  set -g status-right "#(tmux-mem-cpu-load --cpu-only --tick-graph) #(tmux-mem-cpu-load --mem-only --tick-graph --mem-mode 3)"
+
+which renders as::
+
+   16.0% ▂   16.22/32.00GB ▄
+
+The tick is coloured green below 75%, yellow above it and red above 90%, and the
+foreground colour is reset afterwards so it does not leak into the rest of the
+status line.
+
+Note that each invocation samples the CPU for its own interval, so calling the
+program twice doubles the sampling cost.
 
 Blending Dynamic Colors Tmux Powerline Segments
 ===============================================

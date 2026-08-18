@@ -168,9 +168,43 @@ if(BUILD_TESTING)
     COMMAND tmux-mem-cpu-load -t 1
     )
 
+  add_test(NAME memory_mode_gigabytes
+    COMMAND tmux-mem-cpu-load -m 3
+    )
+
+  add_test(NAME invalid_memory_mode
+    COMMAND tmux-mem-cpu-load -m 4
+    )
+
+  add_test(NAME tick_graph
+    COMMAND tmux-mem-cpu-load --tick-graph
+    )
+
+  add_test(NAME cpu_only
+    COMMAND tmux-mem-cpu-load --cpu-only
+    )
+
+  add_test(NAME mem_only
+    COMMAND tmux-mem-cpu-load --mem-only
+    )
+
+  add_test(NAME cpu_only_tick_graph
+    COMMAND tmux-mem-cpu-load --cpu-only --tick-graph
+    )
+
+  add_test(NAME mem_only_tick_graph_gigabytes
+    COMMAND tmux-mem-cpu-load --mem-only --tick-graph --mem-mode 3
+    )
+
+  add_test(NAME cpu_only_and_mem_only
+    COMMAND tmux-mem-cpu-load --cpu-only --mem-only
+    )
+
   set_tests_properties(usage
     invalid_status_interval
     invalid_graph_lines
+    invalid_memory_mode
+    cpu_only_and_mem_only
     old_option_specification
     PROPERTIES WILL_FAIL TRUE)
 endif()
