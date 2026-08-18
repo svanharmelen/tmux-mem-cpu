@@ -26,7 +26,7 @@ The system load average is also displayed.
 
 Example output::
 
-  2885/7987MB [|||||     ]  51.2% 2.11 2.35 2.44
+  2885/7987MB [|||||     ] 51.2% 2.11 2.35 2.44
 
    ^    ^          ^         ^     ^    ^    ^
    |    |          |         |     |    |    |

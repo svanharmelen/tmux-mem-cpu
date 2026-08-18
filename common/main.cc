@@ -106,9 +106,10 @@ std::string cpu_string( CPU_MODE cpu_mode, unsigned int cpu_usage_delay, unsigne
       oss << "]";
     }
   }
-  oss.width( 6 );
+  // Width 5 fits the widest reading the precision above can produce: "99.9"
+  // below 100%, and "100" (or more, for --cpu-mode 1) at or above it.
+  oss.width( 5 );
   oss.setf( std::ios::fixed, std::ios::floatfield );
-  oss.precision( 1 );
   oss.fill( ' ' );
   oss << std::right << percentage * multiplier;
   oss << "%";
